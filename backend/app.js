@@ -7,18 +7,16 @@ import errorHandleMiddleware from './middleware/error.js';
 import cookieParser from 'cookie-parser';
 import fileUpload from 'express-fileupload';
 import path from 'path';
+import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const app = express();
 
 // Load env only if not in PRODUCTION
-if (process.env.NODE_ENV !== 'PRODUCTION') {
-  import('dotenv').then(dotenv => {
-    dotenv.config({ path: 'backend/config/config.env' });
-  });
-}
+
 
 // Middlewares
 app.use(express.json());
@@ -33,13 +31,16 @@ app.use("/api/v1", order);
 app.use("/api/v1", payment);
 
 // Serve frontend (Vite built files)
-app.use(express.static(path.join(__dirname, '../frontend/dist')));
-
-app.get('*', (_, res) => {
-  res.sendFile(path.resolve(__dirname, '../frontend/dist/index.html'));
-});
+app.use(express.static(path.join(__dirname,'../frontend/dist')));
+app.get("*",(_,res)=>{
+  res.sendFile(path.resolve(__dirname,'../frontend/dist/index.html'))
+})
 
 // Error Middleware
 app.use(errorHandleMiddleware);
+if(process.env.NODE_ENV === 'PRODUCTION') {
+  dotenv.config({ path: 'backend/config/config.env' });
+  
+}
 
 export default app;
